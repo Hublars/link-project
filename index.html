@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Links Project</title>
+		<link rel="stylesheet" href="assets/css/style.css" />
+	</head>
+
+	<body>
+		<h4 id="header1">Header</h4>
+		
+		<div id="mainLinks"></div>
+		<div id="subLinks"></div>
+		
+		<script id="pageLinkTemplate" type="text/template">
+			<h1><%= name %><span><%= type %></span></h1>
+            <img src="<%= photo %>" alt="<%= name %>" />
+            <p><%= description %></p>
+            <div><a href="<%= address %>" target="_blank">Home page: <%= address %></a></div>
+            <button class="showMore">More</button>
+        </script>
+		
+		<script src="assets/lib/jquery.js" type="text/javascript"></script>
+		<script src="assets/lib/json2.js" type="text/javascript"></script>
+		<script src="assets/lib/underscore.js" type="text/javascript"></script>
+		<script src="assets/lib/backbone.js" type="text/javascript"></script>
+		<script src="src/app.js" type="text/javascript"></script>
+	</body>
+</html>

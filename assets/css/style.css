@@ -1,0 +1,73 @@
+body {
+	min-width: 1000px;
+}
+
+#mainLinks {
+	width: 350px;
+	float: left;
+}
+
+#subLinks {
+	width: 450px;
+	float: left;
+}
+
+.link-container {
+	width: 300px;
+	padding: 10px;
+	border: 1px solid #aab;
+	margin: 0 10px 10px 0;
+	float: left;
+	font-family: sans-serif;
+	color: #333;
+	background-color: #eef;
+}
+.link-container h1 {
+	margin: 0;
+	font-weight: normal;
+	float: right;
+}
+.link-container h1 span {
+	float: right;
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: normal;
+}
+.link-container img {
+	width: 100px;
+	height: 50px;
+	border-width: 0;
+	margin-right: 10px;
+	float: left;
+	overflow: hidden;
+	margin-bottom: 10px;
+	background-color: #AAAABB;
+}
+.link-container div {
+	margin-bottom: 24px;
+	font-size: 14px;
+	float: left;
+	clear: both;
+}
+.link-container a {
+	color: #333;
+}
+
+.link-container p {
+	float: right;
+	clear: both;
+}
+
+.showMore {
+	float: right;
+}
+
+
+
+
+
+
+
+
+
+
