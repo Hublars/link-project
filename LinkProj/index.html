@@ -17,17 +17,13 @@
 
 	<body onload="loaded()">
 		<h4 id="header1">Links</h4>
-		<h4 id="header2">Links</h4>
-		<h4 id="header3">Links</h4>
-		<h4 id="header4">Links</h4>
-
+		
 		<script id="linkTemplate" type="text/template">
 			<h1><%= name %><span><%= type %></span></h1>
 			<img src="<%= photo %>" alt="<%= name %>" />
 			<p class="testNum"><%= numId %></p><p class="desc"><%= description %></p>
 			<div><a href="<%= address %>" target="_blank">Home page: <%= address %></a></div>
 			<button class="showMore">More</button>
-			<!--<button class="showMore" onclick="location.href='#more'">More</button>-->
 		</script>
 
 		<script>

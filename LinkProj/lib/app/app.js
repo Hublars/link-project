@@ -33,18 +33,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
 		template : $("#linkTemplate").html(),
 
 		initialize : function() {
-			//$("#header1").html("hej " + this.model.get("links").length);
-
-			//var but = this.model.get(".showMore");
-			//this.template.removeChild($el(".showMore"));
-			//this.model.set(".showMore", "");
-
-			//$("#header2").html("hej " + this.template.get("html"));
-
-			/*if (this.model.get("links").length < 1)
-			 this.model.unset()
-			 else
-			 $("#header2").html("hoj ");*/
+		    
 		},
 
 		render : function() {
@@ -132,15 +121,6 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
 				
 				linkRouter.navigate("#nav" + navNum++, { trigger: true });
 			}
-			
-			//var triggerName = "more";
-			//this.trigger("change:triggerName");
-			//window.navigate("more");
-			//this.navigate("#more", {trigger: true});
-			//window.location.href("more");
-			
-			//linkRouter.navigate($(this).attr("href"), { trigger: true });
-			//linkRouter.navigate("#more", { trigger: true });
 		}
 	});
 
@@ -209,10 +189,8 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
 		},
 		
 		showMoreOrLess: function(more) {
-			//$("#header2").html("show");
-			//document.getElementById("header2").innerHTML = "hejhoj";
 			//this.navigate("#");
-			console.log(more);
+			//console.log(more);
 		},
 		
 		index: function() {
@@ -222,7 +200,6 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
 	
 	var linkRouter = new LinkRouter();
 	
-	//Backbone.history.start({ pushState: true });
 	Backbone.history.start();
 });
 
