@@ -5,7 +5,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
             photo : "assets/images/placeholder.png",
             collId : 0,
             countId : 0,
-            openedWithCountId: 0,
+            openedWithCountId : 0,
             buttonLabel : "More"
         }
     });
@@ -44,7 +44,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
             $(this.el).html(this.template(this.model.toJSON()));
             return this;
         },
-        
+
         renderButton : function() {
             $(".showMore", this.$el).html(this.model.get("buttonLabel"));
             return this;
@@ -186,7 +186,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
                 }
                 _.each(subHeaders, function(header) {
                     _.each(allCollections[i].collection.models, function(model) {
-                        
+
                         var compareHeader = header.split("-")[0];
                         var compareId = header.split("-")[1];
 
@@ -234,18 +234,19 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
     var linkRouter = new LinkRouter();
 
     Backbone.history.start({
-        pushState : false
+        pushState : false,
+        root : "/LinkProj/index.html#",
     });
 
     function addChildren(model, nm) {
-        
+
         if (model.get("links").length > 0) {
-            
+
             model.set("buttonLabel", "Less");
         } else {
             return;
         }
-        
+
         var nextCollectionNumber = model.get("collId") + 1;
         var countId = model.get("countId");
 
@@ -256,7 +257,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
             var linksNew = new Directory(model.get("links"));
             linksNew.setHeader(nm);
             linksNew.setCollectionNumber(nextCollectionNumber);
-            
+
             var count = 0;
             _.each(linksNew.models, function(item) {
                 item.set("countId", count++);
@@ -272,7 +273,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
         } else {
             var linksNew = new Directory(model.get("links"));
             linksNew.setHeader(nm);
-            
+
             var count = 0;
             _.each(linksNew.models, function(item) {
                 item.set("countId", count++);
@@ -295,5 +296,6 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
             allCollections.push(subLinks);
         }
     }
+
 });
 
