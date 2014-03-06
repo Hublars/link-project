@@ -77,7 +77,7 @@ define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function
                     for (var j = subColl.collection.models.length - 1; j > -1; j--) {
 
                         var modelName = subColl.collection.models[j].get("name");
-                        var modelOpenedWithCountId = subColl.collection.models[j].get("openedWithCountId"); // Var h√§r
+                        var modelOpenedWithCountId = subColl.collection.models[j].get("openedWithCountId"); // Var h‰r
 
                         if (modelName === nm && modelOpenedWithCountId === countId) {
                             subColl.collection.models[j].destroy();
