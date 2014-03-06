@@ -1,215 +1,299 @@
 define(["linkCollection", "jquery", "json2", "underscore", "backbone"], function(lc) {
 
-	var LinkModel = Backbone.Model.extend({
-		defaults : {
-			photo : "assets/images/placeholder.png",
-			numId : 0
-		}
-	});
+    var LinkModel = Backbone.Model.extend({
+        defaults : {
+            photo : "assets/images/placeholder.png",
+            collId : 0,
+            countId : 0,
+            openedWithCountId: 0,
+            buttonLabel : "More"
+        }
+    });
 
-	var Directory = Backbone.Collection.extend({
-		model : LinkModel,
+    var Directory = Backbone.Collection.extend({
+        model : LinkModel,
 
-		setHeader : function(header) {
-			var that = this;
+        setHeader : function(header) {
+            var that = this;
+            var nm = header.split("-")[0];
 
-			_.each(this.models, function(item) {
-				item.set("name", header);
-			}, this);
-		},
+            _.each(this.models, function(item) {
+                item.set("name", nm);
+            }, this);
+        },
 
-		setCollectionNumber : function(newCollectionNumber) {
-			var that = this;
+        setCollectionNumber : function(newCollectionNumber) {
+            var that = this;
 
-			_.each(this.models, function(item) {
-				item.set("numId", newCollectionNumber);
-			}, this);
-		},
-	});
+            _.each(this.models, function(item) {
+                item.set("collId", newCollectionNumber);
+            }, this);
+        },
+    });
 
-	var LinkView = Backbone.View.extend({
-		tagName : "article",
-		className : "link-container",
-		template : $("#linkTemplate").html(),
+    var LinkView = Backbone.View.extend({
+        tagName : "article",
+        className : "link-container",
+        template : _.template($("#linkTemplate").html()),
 
-		initialize : function() {
-		    
-		},
+        initialize : function() {
+            this.listenTo(this.model, "change:buttonLabel", this.renderButton);
+        },
 
-		render : function() {
-			var tmpl = _.template(this.template);
+        render : function() {
+            $(this.el).html(this.template(this.model.toJSON()));
+            return this;
+        },
+        
+        renderButton : function() {
+            $(".showMore", this.$el).html(this.model.get("buttonLabel"));
+            return this;
+        },
 
-			$(this.el).html(tmpl(this.model.toJSON()));
-			return this;
-		},
+        events : {
+            "click button.showMore" : "showMore"
+        },
 
-		events : {
-			"click button.showMore" : "showMore"
-		},
+        showMore : function(e) {
+            var btnTxt = this.model.get("buttonLabel");
+            var nm = this.model.get("name");
+            var countId = this.model.get("countId");
 
-		showMore : function(e) {
+            if (btnTxt === "More") {
+                addChildren(this.model, nm);
+                linkRouter.doNavigate();
 
-			var btnTxt = $(e.target).html();
-			var nm = this.model.get("name");
+            } else if (btnTxt === "Less") {
 
-			if (btnTxt === "More") {
+                var startCount = this.model.get("collId") + 1;
+                var lastCount = allCollections.length;
 
-				var nextCollectionNumber = this.model.get("numId") + 1;
+                var testStr = "";
 
-				if (allCollections[nextCollectionNumber]) {
+                for (var i = startCount; i < lastCount; i++) {
 
-					var existingCollectionView = allCollections[nextCollectionNumber];
+                    var subColl = allCollections[i];
 
-					var linksNew = new Directory(this.model.get("links"));
-					linksNew.setHeader(nm);
-					linksNew.setCollectionNumber(nextCollectionNumber);
+                    for (var j = subColl.collection.models.length - 1; j > -1; j--) {
 
-					existingCollectionView.collection.add(linksNew.toJSON(), {
-						silent : true
-					});
+                        var modelName = subColl.collection.models[j].get("name");
+                        var modelOpenedWithCountId = subColl.collection.models[j].get("openedWithCountId"); // Var här
 
-					existingCollectionView.render();
+                        if (modelName === nm && modelOpenedWithCountId === countId) {
+                            subColl.collection.models[j].destroy();
+                        }
 
-				} else {
-					var linksNew = new Directory(this.model.get("links"));
-					linksNew.setHeader(nm);
+                        subColl.render();
+                    }
+                }
 
-					var subLinks = new LinkCollectionView({
-						el : $(getNewLinkDiv()),
-						collection : new Directory()
-					});
+                this.model.set("buttonLabel", "More");
 
-					subLinks.collection.add(linksNew.toJSON(), {
-						silent : true
-					});
+                linkRouter.doNavigate();
+            }
+        }
+    });
 
-					subLinks.setCollectionNumber(nextCollectionNumber);
-					subLinks.doInitialize();
-					subLinks.render();
+    var LinkCollectionView = Backbone.View.extend({
+        _collectionNumber : 0,
 
-					allCollections.push(subLinks);
-				}
+        setCollectionNumber : function(newCollectionNumber) {
+            this.collectionNumber = newCollectionNumber;
+        },
 
-				$(e.target).html("Less");
-				
-				linkRouter.navigate("#nav" + navNum++, { trigger: true });
+        getCollectionNumber : function() {
+            return this.collectionNumber;
+        },
 
-			} else if (btnTxt === "Less") {
+        initialize : function() {
+            _.each(this.collection.models, function(item) {
+                item.set("collId", this.getCollectionNumber());
+            }, this);
+        },
 
-				var startCount = this.model.get("numId") + 1;
-				var lastCount = allCollections.length;
+        render : function() {
+            this.$el.html("");
+            var that = this;
+            _.each(this.collection.models, function(item) {
+                that.renderLink(item);
+            }, this);
+        },
 
-				var testStr = "";
-				
-				for (var i = startCount; i < lastCount; i++) {
-					
-					var subColl = allCollections[i];
-					
-					for (var j = subColl.collection.models.length - 1; j > -1; j--) {
-						
-						var modelName = subColl.collection.models[j].get("name");
-						
-						if (modelName === nm) {
-							subColl.collection.models[j].destroy();
-						}
-						
-						subColl.render();
-					}
-				}
-				
-				$(e.target).html("More");
-				
-				linkRouter.navigate("#nav" + navNum++, { trigger: true });
-			}
-		}
-	});
+        renderLink : function(item) {
+            var linkView = new LinkView({
+                model : item
+            });
+            this.$el.append(linkView.render().el);
+        }
+    });
 
-	var LinkCollectionView = Backbone.View.extend({
-		collectionNumber : 0,
+    function getNewLinkDiv() {
+        var linkDiv = document.createElement("DIV");
+        linkDiv.className = "linkCollection";
+        $("#linksDiv").append(linkDiv);
 
-		setCollectionNumber : function(newCollectionNumber) {
-			this.collectionNumber = newCollectionNumber;
-		},
+        return linkDiv;
+    }
 
-		getCollectionNumber : function() {
-			return this.collectionNumber;
-		},
+    var mainLinks = new LinkCollectionView({
+        el : $(getNewLinkDiv()),
+        collection : new Directory(lc.pageLinks),
+    });
 
-		initialize : function() {
-		},
+    mainLinks.setCollectionNumber(0);
+    mainLinks.initialize();
+    mainLinks.render();
 
-		doInitialize : function() {
-			_.each(this.collection.models, function(item) {
-				item.set("numId", this.getCollectionNumber());
-			}, this);
+    var allCollections = [mainLinks];
 
-			this.render();
-		},
+    var LinkRouter = Backbone.Router.extend({
+        routes : {
+            "*nav" : "browserWalk",
+            "" : "index"
+        },
 
-		render : function() {
-			this.$el.html("");
-			var that = this;
-			_.each(this.collection.models, function(item) {
-				that.renderLink(item);
-			}, this);
-		},
+        browserWalk : function(more) {
+            //console.log(more);
 
-		renderLink : function(item) {
-			var linkView = new LinkView({
-				model : item
-			});
-			this.$el.append(linkView.render().el);
-		}
-	});
+            $("#linksDiv").html("");
 
-	function getNewLinkDiv() {
-		var linkDiv = document.createElement("DIV");
-		linkDiv.className = "linkCollection";
-		$("body").append(linkDiv);
+            mainLinks = new LinkCollectionView({
+                el : $(getNewLinkDiv()),
+                collection : new Directory(lc.pageLinks),
+            });
+            mainLinks.setCollectionNumber(0);
+            mainLinks.initialize();
 
-		return linkDiv;
-	}
+            allCollections = [mainLinks];
 
-	var mainLinks = new LinkCollectionView({
-		el : $(getNewLinkDiv()),
-		collection : new Directory(lc.pageLinks),
-	});
-	mainLinks.setCollectionNumber(0);
-	mainLinks.doInitialize();
+            mainLinks.render();
 
-	var allCollections = [mainLinks];
-	
-	
-	var navNum = 0;
-	
-	var LinkRouter = Backbone.Router.extend({
-		routes: {
-			"*nav": "showMoreOrLess",
-			"": "index"
-		},
-		
-		showMoreOrLess: function(more) {
-			//this.navigate("#");
-			//console.log(more);
-		},
-		
-		index: function() {
-			console.log("index");
-		}
-	});
-	
-	var linkRouter = new LinkRouter();
-	
-	Backbone.history.start();
+            if (more) {
+                if (more.indexOf("*") < 0)
+                    return;
+
+                var listHeaders = more.split("*");
+            } else {
+                return;
+            }
+
+            for (var i = 0; i < allCollections.length; i++) {
+
+                if (listHeaders.length > 1) {
+                    var subHeaders = listHeaders[i + 1].split(",");
+                } else {
+                    return;
+                }
+                _.each(subHeaders, function(header) {
+                    _.each(allCollections[i].collection.models, function(model) {
+                        
+                        var compareHeader = header.split("-")[0];
+                        var compareId = header.split("-")[1];
+
+                        if (model.get("name") === compareHeader && parseInt(model.get("countId")) === parseInt(compareId)) {
+                            addChildren(model, header);
+                        }
+                    });
+                });
+            }
+        },
+
+        index : function() {
+            console.log("index");
+        },
+
+        doNavigate : function() {
+            var allHeaders = "";
+            var subCollHeaders = "";
+
+            for (var i = 0; i < allCollections.length; i++) {
+
+                var subColl = allCollections[i];
+
+                for (var j = 0; j < subColl.collection.models.length; j++) {
+
+                    var modl = subColl.collection.models[j];
+                    var modelHeader = modl.get("name") + "-" + modl.get("openedWithCountId");
+
+                    if (subCollHeaders.indexOf(modelHeader) < 0)
+                        subCollHeaders += modelHeader + ",";
+                }
+
+                if (subCollHeaders !== "*")
+                    allHeaders += subCollHeaders;
+
+                subCollHeaders = "*";
+            }
+
+            this.navigate(allHeaders, {
+                trigger : false
+            });
+        }
+    });
+
+    var linkRouter = new LinkRouter();
+
+    Backbone.history.start({
+        pushState : false
+    });
+
+    function addChildren(model, nm) {
+        
+        if (model.get("links").length > 0) {
+            
+            model.set("buttonLabel", "Less");
+        } else {
+            return;
+        }
+        
+        var nextCollectionNumber = model.get("collId") + 1;
+        var countId = model.get("countId");
+
+        if (allCollections[nextCollectionNumber]) {
+
+            var existingCollectionView = allCollections[nextCollectionNumber];
+
+            var linksNew = new Directory(model.get("links"));
+            linksNew.setHeader(nm);
+            linksNew.setCollectionNumber(nextCollectionNumber);
+            
+            var count = 0;
+            _.each(linksNew.models, function(item) {
+                item.set("countId", count++);
+                item.set("openedWithCountId", model.get("countId"));
+            });
+
+            existingCollectionView.collection.add(linksNew.toJSON(), {
+                silent : true
+            });
+
+            existingCollectionView.render();
+
+        } else {
+            var linksNew = new Directory(model.get("links"));
+            linksNew.setHeader(nm);
+            
+            var count = 0;
+            _.each(linksNew.models, function(item) {
+                item.set("countId", count++);
+                item.set("openedWithCountId", model.get("countId"));
+            });
+
+            var subLinks = new LinkCollectionView({
+                el : $(getNewLinkDiv()),
+                collection : new Directory()
+            });
+
+            subLinks.collection.add(linksNew.toJSON(), {
+                silent : true
+            });
+
+            subLinks.setCollectionNumber(nextCollectionNumber);
+            subLinks.initialize();
+            subLinks.render();
+
+            allCollections.push(subLinks);
+        }
+    }
 });
-
-
-
-
-
-
-
-
-
-
 
