@@ -3,7 +3,8 @@ link-project
 
 A program with a collection of links.
 
-This program is meant for me to learn different javascript techniques.
-
+Just me trying out different javascript techniques.
 Backbone
+Underscore
+jQuery
 Require
